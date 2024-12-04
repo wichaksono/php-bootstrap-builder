@@ -12,6 +12,7 @@ require_once __DIR__ . '/autoload.php'; ?>
     <title>Bootstrap demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
 
@@ -20,6 +21,9 @@ require_once __DIR__ . '/autoload.php'; ?>
     echo Section::make('Form')
         ->description('Form example')
         ->icon('bi bi-file-earmark-text')
+        ->attributes([
+                'data-bs-spy' => 'scroll',
+        ])
         ->columns([
                 'default' => 12,
                 'sm' => 6,
@@ -33,7 +37,7 @@ require_once __DIR__ . '/autoload.php'; ?>
                 ->label('Email')
                 ->value('fasdfasd@mail.com')
         ])
-        ->collapse()
+        ->collapsed()
         ->render();
 
     ?>

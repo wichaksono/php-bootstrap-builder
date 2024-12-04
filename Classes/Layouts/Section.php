@@ -1,17 +1,24 @@
 <?php
+
 declare(strict_types=1);
 
 namespace NeonWebId\Classes\Layouts;
 
 use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
-use NeonWebId\Classes\Common\Traits\ColumnTrait;
-use NeonWebId\Classes\Common\Traits\SchemaTrait;
+use NeonWebId\Classes\Common\Traits\AttributeTrait;
+use NeonWebId\Classes\Common\Traits\ColumnSchemaTrait;
+
+use function implode;
+use function is_array;
+use function trim;
 
 class Section implements SchemaInterface
 {
-    use ColumnTrait, SchemaTrait;
+    use ColumnSchemaTrait, AttributeTrait;
 
     private string $id = '';
+
+    private string|array $class = '';
 
     private string $title = '';
 
@@ -73,15 +80,18 @@ class Section implements SchemaInterface
 
     public function render(): string
     {
-        $collapse    = $this->collapse ? 'collapse' : '';
-        $collapsed   = $this->collapsed ? 'collapsed' : '';
-        $aside       = $this->aside ? 'aside' : '';
+        $classes = 'section' . (is_array($this->class) ? implode(' ', $this->class) : $this->class);
+        $classes .= $this->aside ? ' aside' : '';
+        $classes .= $this->collapse ? ' collapse' : '';
+        $classes .= $this->collapsed ? ' collapsed' : '';
+
         $id          = $this->id ? 'id="' . $this->id . '"' : '';
         $icon        = $this->icon ? '<i class="' . $this->icon . '"></i>' : '';
         $description = $this->description ? '<p class="text-muted">' . $this->description . '</p>' : '';
 
-        $render = '<section class="section ' . $aside . '" ';
+        $render = '<section class="' . trim($classes) . '" ';
         $render .= $id;
+        $render .= $this->getAttributes();
         $render .= '>';
 
         $render .= '<div class="section-header">';
