@@ -17,6 +17,10 @@ require_once __DIR__ . '/autoload.php'; ?>
 <body>
 
 <div class="container">
+    <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">Email address</label>
+    </div>
     <?php
     echo Section::make('Form')
         ->description('Form example')
@@ -32,12 +36,22 @@ require_once __DIR__ . '/autoload.php'; ?>
         ->schema([
             TextInput::make('name')
                 ->label('Name')
-                ->value('John Doe'),
+                ->placeholder('Your name')
+                ->floating(),
             TextInput::make('email')
                 ->label('Email')
-                ->value('fasdfasd@mail.com')
+                ->value('fasdfasd@mail.com'),
+            TextInput::make('countries')
+                ->label('Countries')
+                ->placeholder('Select country')
+                ->dataList([
+                    'Indonesia',
+                    'Malaysia',
+                    'Singapore',
+                    'Thailand',
+                    'Vietnam',
+                ]),
         ])
-        ->collapsed()
         ->render();
 
     ?>
