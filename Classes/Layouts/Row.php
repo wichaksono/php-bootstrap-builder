@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace NeonWebId\Classes\Layouts;
 
-use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
-use NeonWebId\Classes\Common\Traits\ColumnSchemaTrait;
+use NeonWebId\Classes\Common\Interfaces\ElementInterface;
+use NeonWebId\Classes\Common\Traits\LayoutTrait;
 
-class Row implements SchemaInterface
+class Row implements ElementInterface
 {
-    use ColumnSchemaTrait;
+    use LayoutTrait;
 
     private string $id = '';
 

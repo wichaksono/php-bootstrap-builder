@@ -1,9 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
-namespace NeonWebId\Classes\Common\Interfaces;
+namespace NeonWebId\Common\Interfaces;
 
-interface SchemaInterface
+interface RenderInterface
 {
     public function render(): string;
 }

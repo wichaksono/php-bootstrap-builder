@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace NeonWebId\Classes\Common\Traits;
 
-use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
+use NeonWebId\Classes\Common\Interfaces\ElementInterface;
 
 use function sprintf;
 
-trait ColumnSchemaTrait
+trait LayoutTrait
 {
     use ColumnTrait;
     use SchemaTrait;
@@ -23,7 +23,12 @@ trait ColumnSchemaTrait
 
         if ( $this->schema !== [] ) {
             foreach ($this->schema as $schema) {
-                if ( $schema instanceof SchemaInterface ) {
+                if ( $schema instanceof ElementInterface ) {
+                    if ($schema->hasColumnSpan()) {
+                        $schemas .= sprintf($wrap, $schema->render());
+                    } else {
+                        $schemas .= $schema->render();
+                    }
                     $schemas .= sprintf($wrap, $schema->render());
                 }
             }

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace NeonWebId\Classes\Forms;
+namespace NeonWebId\Classes\Common\Abstracts;
 
-use NeonWebId\Classes\Common\Traits\ColumnTrait;
-use NeonWebId\Classes\Common\Traits\SchemaTrait;
+use NeonWebId\Classes\Common\Interfaces\FieldInterface;
+use NeonWebId\Classes\Common\Traits\AttributeTrait;
+use NeonWebId\Classes\Common\Traits\FormFieldTrait;
 
-abstract class Field
+abstract class FieldAbstract implements FieldInterface
 {
-    use ColumnTrait;
-    use SchemaTrait;
+    use FormFieldTrait, AttributeTrait;
 
     private string $id;
 
@@ -83,12 +83,10 @@ abstract class Field
 
     private string $suffixIcon = '';
 
-    private array $attributes = [];
-
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->id = $name . '-' . substr(md5(microtime()), 0, 5);
+        $this->id   = $name . '-' . substr(md5(microtime()), 0, 5);
     }
 
     public function id(string $id): self
@@ -229,9 +227,14 @@ abstract class Field
         return $this;
     }
 
-    public function attributes(array $attributes):self
+    public function render(): string
     {
-        $this->attributes = $attributes;
-        return $this;
+        $column        = $this->getColumns();
+        $columnMargin  = $this->getColumnMargin();
+        $columnPadding = $this->getColumnPadding();
+        $columnSpan    = $this->getColumnSpan();
+
+
+        return '';
     }
 }

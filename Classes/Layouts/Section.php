@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace NeonWebId\Classes\Layouts;
 
-use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
+use NeonWebId\Classes\Common\Interfaces\ElementInterface;
 use NeonWebId\Classes\Common\Traits\AttributeTrait;
-use NeonWebId\Classes\Common\Traits\ColumnSchemaTrait;
+use NeonWebId\Classes\Common\Traits\LayoutTrait;
 
 use function implode;
 use function is_array;
 use function trim;
 
-class Section implements SchemaInterface
+class Section implements ElementInterface
 {
-    use ColumnSchemaTrait, AttributeTrait;
+    use LayoutTrait, AttributeTrait;
 
     private string $id = '';
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace NeonWebId\Classes\Layouts;
 
-use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
+use NeonWebId\Classes\Common\Interfaces\ElementInterface;
 use NeonWebId\Classes\Common\Traits\SchemaTrait;
 
-class Flex implements SchemaInterface
+class Flex implements ElementInterface
 {
     use SchemaTrait;
 

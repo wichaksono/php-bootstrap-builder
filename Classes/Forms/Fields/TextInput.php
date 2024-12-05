@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace NeonWebId\Classes\Forms\Fields;
 
-use NeonWebId\Classes\Common\Interfaces\SchemaInterface;
+use NeonWebId\Classes\Common\Interfaces\ElementInterface;
 use NeonWebId\Classes\Common\Traits\ColumnTrait;
 
 use function var_dump;
 
-class TextInput implements SchemaInterface
+class TextInput implements ElementInterface
 {
     use ColumnTrait;
 
@@ -19,6 +19,8 @@ class TextInput implements SchemaInterface
     private string $label;
 
     private string $value = '';
+
+    private string $helpText = '';
 
     private string $type = 'text';
 
@@ -51,6 +53,12 @@ class TextInput implements SchemaInterface
     public static function make(string $name): self
     {
         return new self($name);
+    }
+
+    public function helpText(string $helpText): self
+    {
+        $this->helpText = $helpText;
+        return $this;
     }
 
     public function type(string $type): self
@@ -92,6 +100,8 @@ class TextInput implements SchemaInterface
     public function render(): string
     {
 
+        $helpText = $this->helpText !== '' ? '<div class="form-text">' . $this->helpText . '</div>' : '';
+
         if ($this->dataLists !== []) {
             $dataList = '<datalist id="' . $this->id . '-datalist">';
             foreach ($this->dataLists as $dataItem) {
@@ -99,7 +109,7 @@ class TextInput implements SchemaInterface
             }
             $dataList .= '</datalist>';
 
-            return sprintf(
+            $input = sprintf(
                 '<label for="%s" class="form-label">%s</label><input type="%s" class="form-control" id="%s" name="%s" value="%s" placeholder="%s" list="%s-datalist">%s',
                 $this->id,
                 $this->label,
@@ -111,11 +121,12 @@ class TextInput implements SchemaInterface
                 $this->id,
                 $dataList
             );
+
+            return $input . $helpText;
         }
 
-
         if ( $this->floating ) {
-            return sprintf(
+            $input = sprintf(
                 '<div class="form-floating"><input type="%s" class="form-control" id="%s" name="%s" value="%s" placeholder="%s"><label for="%s">%s</label></div>',
                 $this->type,
                 $this->id,
@@ -125,17 +136,19 @@ class TextInput implements SchemaInterface
                 $this->id,
                 $this->label
             );
+        } else {
+            $input = sprintf(
+                '<label for="%s" class="form-label">%s</label><input type="%s" class="form-control" id="%s" name="%s" value="%s" placeholder="%s">',
+                $this->id,
+                $this->label,
+                $this->type,
+                $this->id,
+                $this->name,
+                $this->value,
+                $this->placeholder
+            );
         }
 
-        return sprintf(
-            '<label for="%s" class="form-label">%s</label><input type="%s" class="form-control" id="%s" name="%s" value="%s" placeholder="%s">',
-            $this->id,
-            $this->label,
-            $this->type,
-            $this->id,
-            $this->name,
-            $this->value,
-            $this->placeholder
-        );
+        return $input . $helpText;
     }
 }
