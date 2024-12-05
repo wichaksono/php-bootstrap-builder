@@ -12,7 +12,7 @@ use function trim;
 
 trait LayoutColumnsTrait
 {
-    use ResponsiveDisplayTrait;
+    use BreakpointTrait;
 
     /**
      * Available Columns Values
@@ -83,7 +83,7 @@ trait LayoutColumnsTrait
 
             // Apply specific breakpoint orders
             foreach ($order as $display => $value) {
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->order[] = "order-{$display}-{$value}";
                 }
             }
@@ -109,7 +109,7 @@ trait LayoutColumnsTrait
 
             // Apply specific breakpoint columns
             foreach ( $columns as $display => $value ) {
-                if ( in_array($display, $this->availableResponsiveDisplay) ) {
+                if ( in_array($display, $this->availableBreakpoints) ) {
                     $this->columns["split-col-{$display}"] = $value;
                 }
             }

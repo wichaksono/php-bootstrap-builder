@@ -11,7 +11,7 @@ use function is_string;
 
 trait LayoutContainerTrait
 {
-    use ResponsiveDisplayTrait;
+    use BreakpointTrait;
 
     /**
      * Available Justify Content Values
@@ -81,7 +81,7 @@ trait LayoutContainerTrait
 
             // Apply specific breakpoint justifications
             foreach ($justifyContent as $display => $value) {
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->justifyContent[] = "justify-content-{$display}-{$value}";
                 }
             }
@@ -114,7 +114,7 @@ trait LayoutContainerTrait
 
             // Apply specific breakpoint alignments
             foreach ($alignItems as $display => $value) {
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->alignItems[] = "align-items-{$display}-{$value}";
                 }
             }
@@ -147,7 +147,7 @@ trait LayoutContainerTrait
 
             // Apply specific breakpoint alignments
             foreach ($alignContent as $display => $value) {
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->alignContent[] = "align-content-{$display}-{$value}";
                 }
             }
@@ -180,7 +180,7 @@ trait LayoutContainerTrait
 
             // Apply specific breakpoint alignments
             foreach ($alignSelf as $display => $value) {
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->alignSelf[] = "align-self-{$display}-{$value}";
                 }
             }

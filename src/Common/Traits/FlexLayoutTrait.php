@@ -74,7 +74,7 @@ trait FlexLayoutTrait
             // Now handle individual breakpoints
             foreach ($direction as $display => $value) {
                 // If the display is a valid breakpoint, apply the direction for that specific display
-                if (in_array($display, $this->availableResponsiveDisplay)) {
+                if (in_array($display, $this->availableBreakpoints)) {
                     $this->direction[] = "flex-{$display}-{$value}";
                 }
             }

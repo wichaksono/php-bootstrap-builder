@@ -25,10 +25,10 @@ require_once __DIR__ . '/src/autoload.php'; ?>
             'md' => 2,
             'sm' => 2,
         ])
-        ->padding([
-            'md' => 3,
-            'sm' => 3,
-        ])
+        ->paddingBottom(2)
+        ->paddingEnd(2)
+        ->marginBottom(3)
+        ->marginStart(3)
         ->schema([
             Section::make()
                 ->title('center')

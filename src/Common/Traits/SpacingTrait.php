@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace NeonWebId\Common\Traits;
 
 use function array_merge;
-use function array_unique;
-use function count;
 use function implode;
-use function is_array;
-use function reset;
+use function in_array;
+use function print_r;
 
 /**
  * Trait for handling spacing (margin and padding) in a flexible manner.
@@ -18,7 +16,7 @@ use function reset;
  */
 trait SpacingTrait
 {
-    use ResponsiveDisplayTrait;
+    use BreakpointTrait;
 
     /**
      * Default spacing values applied to all sides.
@@ -70,7 +68,10 @@ trait SpacingTrait
      */
     public function margin(string|int|array $value): self
     {
-        $this->margin = $this->processSpacing($value);
+        $this->marginTop($value);
+        $this->marginBottom($value);
+        $this->marginStart($value);
+        $this->marginEnd($value);
         return $this;
     }
 
@@ -81,9 +82,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginTop(string|int $value): self
+    public function marginTop(string|int|array $value): self
     {
-        $this->margin['t'] = $value;
+        $this->margin = array_merge($this->margin, $this->generateVisibilities($value, 'mt'));
         return $this;
     }
 
@@ -94,9 +95,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginBottom(string|int $value): self
+    public function marginBottom(string|int|array $value): self
     {
-        $this->margin['b'] = $value;
+        $this->margin = array_merge($this->margin, $this->generateVisibilities($value, 'mb'));
         return $this;
     }
 
@@ -107,9 +108,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginStart(string|int $value): self
+    public function marginStart(string|int|array $value): self
     {
-        $this->margin['s'] = $value;
+        $this->margin = array_merge($this->margin, $this->generateVisibilities($value, 'ms'));
         return $this;
     }
 
@@ -120,9 +121,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginEnd(string|int $value): self
+    public function marginEnd(string|int|array $value): self
     {
-        $this->margin['e'] = $value;
+        $this->margin = array_merge($this->margin, $this->generateVisibilities($value, 'me'));
         return $this;
     }
 
@@ -133,10 +134,10 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginX(string|int $value): self
+    public function marginX(string|int|array $value): self
     {
-        $this->margin['s'] = $value;
-        $this->margin['e'] = $value;
+        $this->marginStart($value);
+        $this->marginEnd($value);
         return $this;
     }
 
@@ -147,10 +148,10 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function marginY(string|int $value): self
+    public function marginY(string|int|array $value): self
     {
-        $this->margin['t'] = $value;
-        $this->margin['b'] = $value;
+        $this->marginTop($value);
+        $this->marginBottom($value);
         return $this;
     }
 
@@ -163,7 +164,11 @@ trait SpacingTrait
      */
     public function padding(string|int|array $value): self
     {
-        $this->padding = $this->processSpacing($value);
+        $this->paddingStart($value);
+        $this->paddingEnd($value);
+        $this->paddingTop($value);
+        $this->paddingBottom($value);
+
         return $this;
     }
 
@@ -174,9 +179,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingTop(string|int $value): self
+    public function paddingTop(string|int|array $value): self
     {
-        $this->padding['t'] = $value;
+        $this->padding = array_merge($this->padding, $this->generateVisibilities($value, 'pt'));
         return $this;
     }
 
@@ -187,9 +192,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingBottom(string|int $value): self
+    public function paddingBottom(string|int|array $value): self
     {
-        $this->padding['b'] = $value;
+        $this->padding = array_merge($this->padding, $this->generateVisibilities($value, 'pb'));
         return $this;
     }
 
@@ -200,9 +205,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingStart(string|int $value): self
+    public function paddingStart(string|int|array $value): self
     {
-        $this->padding['s'] = $value;
+        $this->padding = array_merge($this->padding, $this->generateVisibilities($value, 'ps'));
         return $this;
     }
 
@@ -213,9 +218,9 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingEnd(string|int $value): self
+    public function paddingEnd(string|int|array $value): self
     {
-        $this->padding['e'] = $value;
+        $this->padding = array_merge($this->padding, $this->generateVisibilities($value, 'pe'));
         return $this;
     }
 
@@ -226,10 +231,10 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingX(string|int $value): self
+    public function paddingX(string|int|array $value): self
     {
-        $this->padding['s'] = $value;
-        $this->padding['e'] = $value;
+        $this->paddingStart($value);
+        $this->paddingEnd($value);
         return $this;
     }
 
@@ -240,110 +245,205 @@ trait SpacingTrait
      *
      * @return $this
      */
-    public function paddingY(string|int $value): self
+    public function paddingY(string|int|array $value): self
     {
-        $this->padding['t'] = $value;
-        $this->padding['b'] = $value;
+        $this->paddingTop($value);
+        $this->paddingBottom($value);
         return $this;
     }
 
-    /**
-     * Helper function to process margin/padding input.
-     * Converts string to array and merges with default spacing values.
-     *
-     * @param string|int|array $value The value or array of values for spacing.
-     *
-     * @return array<string, string> Processed spacing values.
-     */
     private function processSpacing(string|int|array $value): array
     {
-        // If the value is an array, merge with default spacing
-        if (is_array($value)) {
-            return $value + $this->defaultSpacing;
-        }
-
-        // If the value is a string or integer, apply it to specific sides:
-        if (is_string($value) || is_int($value)) {
-            return [
-                't' => $value,  // Top margin
-                'b' => $value,  // Bottom margin
-                's' => $value,  // Start margin (left in LTR)
-                'e' => $value,  // End margin (right in LTR)
-            ];
-        }
-
-        // Return the default spacing if it's not a valid value
         return $this->defaultSpacing;
     }
 
-    /**
-     * Converts a spacing array into a space-separated string of CSS utility class names.
-     *
-     * This function generates class names with a specified prefix (`m` for margin or `p` for padding).
-     * It applies shorthand classes (e.g., `my-`, `mx-`) when possible,
-     * and falls back to individual classes (e.g., `mt-`, `mb-`) when values are inconsistent.
-     *
-     * Logic:
-     * - Combines default spacing values with the provided array.
-     * - Checks consistency for vertical (`t` and `b`) and horizontal (`s` and `e`) axes.
-     * - Use shorthand (e.g., `my-`, `mx-`) for consistent values.
-     * - Falls back to individual classes (e.g., `mt-`, `mb-`) for inconsistent values.
-     *
-     * @param string $prefix The prefix for the CSS class names ('m' for margin, 'p' for padding).
-     * @param array<string, string> $spacing An associative array of spacing values with keys:
-     *  - 't' (top)
-     *  - 'b' (bottom)
-     *  - 's' (start/left)
-     *  - 'e' (end/right)
-     *
-     * @return string Space-separated class names generated based on the spacing values.
-     */
+
     private function getSpacingString(string $prefix, array $spacing): string
     {
-        if (empty($spacing)) {
-            // Early exit if spacing is empty
-            return '';
+        $defaultSpacings = [];
+        foreach ($this->availableBreakpoints as $breakpoint) {
+            if ( ! in_array($breakpoint, ['default', 'xs'])) {
+                $defaultSpacings["{$prefix}t-{$breakpoint}"] = "";
+                $defaultSpacings["{$prefix}b-{$breakpoint}"] = "";
+                $defaultSpacings["{$prefix}s-{$breakpoint}"] = "";
+                $defaultSpacings["{$prefix}e-{$breakpoint}"] = "";
+            }
         }
 
-        // Merge default values to ensure all keys ('t', 'b', 's', 'e') are set
-        $spacing = array_merge($this->defaultSpacing, $spacing);
+        $spacings = array_merge($defaultSpacings, $spacing);
+
+        $_spacings = [];
+        foreach ($spacings as $key => $value) {
+            if ($value !== '') {
+                $_spacings[$key] = $value;
+            }
+        }
+
+        if (
+            isset($_spacings[$prefix . 't'])
+            && isset($_spacings[$prefix . 'b'])
+            && $_spacings[$prefix . 't'] === $_spacings[$prefix . 'b']) {
+            $_spacings[$prefix . 'y'] = $_spacings[$prefix . 't'];
+            unset($_spacings[$prefix . 't']);
+            unset($_spacings[$prefix . 'b']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 's'])
+            && isset($_spacings[$prefix . 'e'])
+            && $_spacings[$prefix . 's'] === $_spacings[$prefix . 'e']) {
+            $_spacings[$prefix . 'x'] = $_spacings[$prefix . 's'];
+            unset($_spacings[$prefix . 's']);
+            unset($_spacings[$prefix . 'e']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x'])
+            && isset($_spacings[$prefix . 'y'])
+            && $_spacings[$prefix . 'x'] === $_spacings[$prefix . 'y']
+        ) {
+            $_spacings[$prefix] = $_spacings[$prefix . 'x'];
+            unset($_spacings[$prefix . 'x']);
+            unset($_spacings[$prefix . 'y']);
+        }
+
+        // -sm
+        if (isset($_spacings[$prefix . 't-sm'])
+            && isset($_spacings[$prefix . 'b-sm'])
+            && $_spacings[$prefix . 't-sm'] === $_spacings[$prefix . 'b-sm']) {
+            $_spacings[$prefix . 'y-sm'] = $_spacings[$prefix . 't-sm'];
+            unset($_spacings[$prefix . 't-sm']);
+            unset($_spacings[$prefix . 'b-sm']);
+        }
+
+        if (isset($_spacings[$prefix . 's-sm'])
+            && isset($_spacings[$prefix . 'e-sm'])
+            && $_spacings[$prefix . 's-sm'] === $_spacings[$prefix . 'e-sm']) {
+            $_spacings[$prefix . 'x-sm'] = $_spacings[$prefix . 's-sm'];
+            unset($_spacings[$prefix . 's-sm']);
+            unset($_spacings[$prefix . 'e-sm']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x-sm'])
+            && isset($_spacings[$prefix . 'y-sm'])
+            && $_spacings[$prefix . 'x-sm'] === $_spacings[$prefix . 'y-sm']
+        ) {
+            $_spacings[$prefix . '-sm'] = $_spacings[$prefix . 'x-sm'];
+            unset($_spacings[$prefix . 'x-sm']);
+            unset($_spacings[$prefix . 'y-sm']);
+        }
+
+        //  -md
+        if (isset($_spacings[$prefix . 't-md'])
+            && isset($_spacings[$prefix . 'b-md'])
+            && $_spacings[$prefix . 't-md'] === $_spacings[$prefix . 'b-md']) {
+            $_spacings[$prefix . 'y-md'] = $_spacings[$prefix . 't-md'];
+            unset($_spacings[$prefix . 't-md']);
+            unset($_spacings[$prefix . 'b-md']);
+        }
+
+        if (isset($_spacings[$prefix . 's-md'])
+            && isset($_spacings[$prefix . 'e-md'])
+            && $_spacings[$prefix . 's-md'] === $_spacings[$prefix . 'e-md']) {
+            $_spacings[$prefix . 'x-md'] = $_spacings[$prefix . 's-md'];
+            unset($_spacings[$prefix . 's-md']);
+            unset($_spacings[$prefix . 'e-md']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x-md'])
+            && isset($_spacings[$prefix . 'y-md'])
+            && $_spacings[$prefix . 'x-md'] === $_spacings[$prefix . 'y-md']
+        ) {
+            $_spacings[$prefix . '-md'] = $_spacings[$prefix . 'x-md'];
+            unset($_spacings[$prefix . 'x-md']);
+            unset($_spacings[$prefix . 'y-md']);
+        }
+
+        // -lg
+        if (isset($_spacings[$prefix . 't-lg']) && $_spacings[$prefix . 't-lg'] === $_spacings[$prefix . 'b-lg']) {
+            $_spacings[$prefix . 'y-lg'] = $_spacings[$prefix . 't-lg'];
+            unset($_spacings[$prefix . 't-lg']);
+            unset($_spacings[$prefix . 'b-lg']);
+        }
+
+        if (isset($_spacings[$prefix . 's-lg']) && $_spacings[$prefix . 's-lg'] === $_spacings[$prefix . 'e-lg']) {
+            $_spacings[$prefix . 'x-lg'] = $_spacings[$prefix . 's-lg'];
+            unset($_spacings[$prefix . 's-lg']);
+            unset($_spacings[$prefix . 'e-lg']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x-lg'])
+            && isset($_spacings[$prefix . 'y-lg'])
+            && $_spacings[$prefix . 'x-lg'] === $_spacings[$prefix . 'y-lg']
+        ) {
+            $_spacings[$prefix . '-lg'] = $_spacings[$prefix . 'x-lg'];
+            unset($_spacings[$prefix . 'x-lg']);
+            unset($_spacings[$prefix . 'y-lg']);
+        }
+
+        // -xl
+
+        if (isset($_spacings[$prefix . 't-xl'])
+            && isset($_spacings[$prefix . 'b-xl'])
+            && $_spacings[$prefix . 't-xl'] === $_spacings[$prefix . 'b-xl']) {
+            $_spacings[$prefix . 'y-xl'] = $_spacings[$prefix . 't-xl'];
+            unset($_spacings[$prefix . 't-xl']);
+            unset($_spacings[$prefix . 'b-xl']);
+        }
+
+        if (isset($_spacings[$prefix . 's-xl'])
+            && isset($_spacings[$prefix . 'e-xl'])
+            && $_spacings[$prefix . 's-xl'] === $_spacings[$prefix . 'e-xl']) {
+            $_spacings[$prefix . 'x-xl'] = $_spacings[$prefix . 's-xl'];
+            unset($_spacings[$prefix . 's-xl']);
+            unset($_spacings[$prefix . 'e-xl']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x-xl'])
+            && isset($_spacings[$prefix . 'y-xl'])
+            && $_spacings[$prefix . 'x-xl'] === $_spacings[$prefix . 'y-xl']
+        ) {
+            $_spacings[$prefix . '-xl'] = $_spacings[$prefix . 'x-xl'];
+            unset($_spacings[$prefix . 'x-xl']);
+            unset($_spacings[$prefix . 'y-xl']);
+        }
+
+        //  -xxl
+        if (isset($_spacings[$prefix . 't-xxl'])
+            && isset($_spacings[$prefix . 'b-xxl'])
+            && $_spacings[$prefix . 't-xxl'] === $_spacings[$prefix . 'b-xxl']) {
+            $_spacings[$prefix . 'y-xxl'] = $_spacings[$prefix . 't-xxl'];
+            unset($_spacings[$prefix . 't-xxl']);
+            unset($_spacings[$prefix . 'b-xxl']);
+        }
+
+        if (isset($_spacings[$prefix . 's-xxl'])
+            && isset($_spacings[$prefix . 'e-xxl'])
+            && $_spacings[$prefix . 's-xxl'] === $_spacings[$prefix . 'e-xxl']) {
+            $_spacings[$prefix . 'x-xxl'] = $_spacings[$prefix . 's-xxl'];
+            unset($_spacings[$prefix . 's-xxl']);
+            unset($_spacings[$prefix . 'e-xxl']);
+        }
+
+        if (
+            isset($_spacings[$prefix . 'x-xxl'])
+            && isset($_spacings[$prefix . 'y-xxl'])
+            && $_spacings[$prefix . 'x-xxl'] === $_spacings[$prefix . 'y-xxl']
+        ) {
+            $_spacings[$prefix . '-xxl'] = $_spacings[$prefix . 'x-xxl'];
+            unset($_spacings[$prefix . 'x-xxl']);
+            unset($_spacings[$prefix . 'y-xxl']);
+        }
 
         $spacings = [];
-
-        // Check for vertical axis (top and bottom) consistency
-        if ($spacing['t'] === $spacing['b'] && $spacing['t'] !== '') {
-            // Use shorthand for consistent top and bottom values
-            $spacings[] = "{$prefix}y-{$spacing['t']}";
-        } else {
-            // Use individual classes for inconsistent values
-            if ($spacing['t'] !== '') {
-                $spacings[] = "{$prefix}t-{$spacing['t']}";
-            }
-            if ($spacing['b'] !== '') {
-                $spacings[] = "{$prefix}b-{$spacing['b']}";
-            }
+        foreach ($_spacings as $key => $value) {
+            $spacings[] = $key . '-' . $value;
         }
 
-        // Check for horizontal axis (start and end) consistency
-        if ($spacing['s'] === $spacing['e'] && $spacing['s'] !== '') {
-            // Use shorthand for consistent start and end values
-            $spacings[] = "{$prefix}x-{$spacing['s']}";
-        } else {
-            // Use individual classes for inconsistent values
-            if ($spacing['s'] !== '') {
-                $spacings[] = "{$prefix}s-{$spacing['s']}";
-            }
-            if ($spacing['e'] !== '') {
-                $spacings[] = "{$prefix}e-{$spacing['e']}";
-            }
-        }
-
-        // Handle case where all values are the same (e.g., 'm-2')
-        if (count(array_unique($spacing)) === 1 && reset($spacing) !== '') {
-            return "{$prefix}-" . reset($spacing);
-        }
-
-        // Join all generated class names with space
         return implode(' ', $spacings);
     }
 
@@ -369,19 +469,6 @@ trait SpacingTrait
     }
 
     /**
-     * Set columnsMargin values.
-     *
-     * @param string|int|array $value The columnsMargin value or array of values for different sides.
-     *
-     * @return $this
-     */
-    public function columnsMargin(string|int|array $value): self
-    {
-        $this->columnsMargin = $this->processSpacing($value);
-        return $this;
-    }
-
-    /**
      * Set the columnsMargin for the top side.
      *
      * @param string|int $value The columnsMargin value for the top side.
@@ -390,7 +477,7 @@ trait SpacingTrait
      */
     public function columnsMarginTop(string|int $value): self
     {
-        $this->columnsMargin['t'] = $value;
+        $this->columnsMargin = array_merge($this->columnsMargin, $this->generateVisibilities($value, 'mt'));
         return $this;
     }
 
@@ -403,7 +490,7 @@ trait SpacingTrait
      */
     public function columnsMarginBottom(string|int $value): self
     {
-        $this->columnsMargin['b'] = $value;
+        $this->columnsMargin = array_merge($this->columnsMargin, $this->generateVisibilities($value, 'mb'));
         return $this;
     }
 
@@ -416,7 +503,7 @@ trait SpacingTrait
      */
     public function columnsMarginStart(string|int $value): self
     {
-        $this->columnsMargin['s'] = $value;
+        $this->columnsMargin = array_merge($this->columnsMargin, $this->generateVisibilities($value, 'ms'));
         return $this;
     }
 
@@ -429,7 +516,7 @@ trait SpacingTrait
      */
     public function columnsMarginEnd(string|int $value): self
     {
-        $this->columnsMargin['e'] = $value;
+        $this->columnsMargin = array_merge($this->columnsMargin, $this->generateVisibilities($value, 'me'));
         return $this;
     }
 
@@ -442,8 +529,8 @@ trait SpacingTrait
      */
     public function columnsMarginX(string|int $value): self
     {
-        $this->columnsMargin['s'] = $value;
-        $this->columnsMargin['e'] = $value;
+        $this->columnsMarginStart($value);
+        $this->columnsMarginEnd($value);
         return $this;
     }
 
@@ -456,21 +543,24 @@ trait SpacingTrait
      */
     public function columnsMarginY(string|int $value): self
     {
-        $this->columnsMargin['t'] = $value;
-        $this->columnsMargin['b'] = $value;
+        $this->columnsMarginTop($value);
+        $this->columnsMarginBottom($value);
         return $this;
     }
 
     /**
-     * Set columnsPadding values.
+     * Set columnsMargin values.
      *
-     * @param string|int|array $value The columnsPadding value or array of values for different sides.
+     * @param string|int|array $value The columnsMargin value or array of values for different sides.
      *
      * @return $this
      */
-    public function columnsPadding(string|int|array $value): self
+    public function columnsMargin(string|int|array $value): self
     {
-        $this->columnsPadding = $this->processSpacing($value);
+        $this->columnsMarginTop($value);
+        $this->columnsMarginEnd($value);
+        $this->columnsMarginStart($value);
+        $this->columnsMarginBottom($value);
         return $this;
     }
 
@@ -483,7 +573,7 @@ trait SpacingTrait
      */
     public function columnsPaddingTop(string|int $value): self
     {
-        $this->columnsPadding['t'] = $value;
+        $this->columnsPadding = array_merge($this->columnsPadding, $this->generateVisibilities($value, 'pt'));
         return $this;
     }
 
@@ -496,7 +586,7 @@ trait SpacingTrait
      */
     public function columnsPaddingBottom(string|int $value): self
     {
-        $this->columnsPadding['b'] = $value;
+        $this->columnsPadding = array_merge($this->columnsPadding, $this->generateVisibilities($value, 'pb'));
         return $this;
     }
 
@@ -509,7 +599,7 @@ trait SpacingTrait
      */
     public function columnsPaddingStart(string|int $value): self
     {
-        $this->columnsPadding['s'] = $value;
+        $this->columnsPadding = array_merge($this->columnsPadding, $this->generateVisibilities($value, 'ps'));
         return $this;
     }
 
@@ -522,7 +612,7 @@ trait SpacingTrait
      */
     public function columnsPaddingEnd(string|int $value): self
     {
-        $this->columnsPadding['e'] = $value;
+        $this->columnsPadding = array_merge($this->columnsPadding, $this->generateVisibilities($value, 'pe'));
         return $this;
     }
 
@@ -535,8 +625,22 @@ trait SpacingTrait
      */
     public function columnsPaddingX(string|int $value): self
     {
-        $this->columnsPadding['s'] = $value;
-        $this->columnsPadding['e'] = $value;
+        $this->columnsPaddingStart($value);
+        $this->columnsPaddingEnd($value);
+        return $this;
+    }
+
+    /**
+     * Set columnsPadding values.
+     *
+     * @param string|int|array $value The columnsPadding value or array of values for different sides.
+     *
+     * @return $this
+     */
+    public function columnsPadding(string|int|array $value): self
+    {
+        $this->columnsPaddingX($value);
+        $this->columnsPaddingY($value);
         return $this;
     }
 
@@ -549,8 +653,8 @@ trait SpacingTrait
      */
     public function columnsPaddingY(string|int $value): self
     {
-        $this->columnsPadding['t'] = $value;
-        $this->columnsPadding['b'] = $value;
+        $this->columnsPaddingTop($value);
+        $this->columnsPaddingBottom($value);
         return $this;
     }
 
